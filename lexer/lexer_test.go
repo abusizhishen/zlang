@@ -7,7 +7,7 @@ import (
 
 func TestLexer_Tokens(t *testing.T) {
 	var input = `
-	let a= 1+4
+	let a= 1>=4
 	let b=2
 	return a*b
 `
