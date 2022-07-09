@@ -25,6 +25,8 @@ const (
 
 	LT = "<"
 	GT = ">"
+	LE = "<="
+	GE = ">="
 
 	String   = "STRING"
 	Number   = "NUMBER"
