@@ -56,7 +56,9 @@ func (l *Lexer) NextToken() token.Token {
 	case '{':
 		tok = token.Token{token.LBRACE, string(l.ch)}
 	case '}':
-		tok = token.Token{token.RBRACE, string(l.ch)}
+		tok = token.NewToken(token.RBRACE, l.ch)
+	case ';':
+		tok = token.NewToken(token.SEMICOLON, l.ch)
 	case '>':
 		if l.peekChar() == '=' {
 			tok = token.Token{token.GE, l.input[l.position : l.readPosition+1]}
