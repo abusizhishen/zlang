@@ -104,9 +104,68 @@ type Identifier struct {
 	Value string
 }
 
+type Bool struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Bool) expressionNode()      {}
+func (b *Bool) TokenLiteral() string { return b.Token.Literal }
+func (b *Bool) String() string       { return b.Token.Literal }
+
+type GroupExpress struct {
+	Token   token.Token
+	Express Expression
+}
+
+func (g *GroupExpress) expressionNode()      {}
+func (g *GroupExpress) TokenLiteral() string { return g.Token.Literal }
+func (g *GroupExpress) String() string       { return g.Express.String() }
+
 func (id *Identifier) expressionNode()      {}
 func (id *Identifier) TokenLiteral() string { return id.Token.Literal }
 func (id *Identifier) String() string       { return id.Value }
+
+type IfStatement struct {
+	Token         token.Token
+	Express       Expression
+	TrueStatement Statement
+	//ElseIfStatement s
+	ElseStatement Statement
+}
+
+func (i *IfStatement) statementNode()       {}
+func (i *IfStatement) TokenLiteral() string { return i.Token.Literal }
+func (i *IfStatement) String() string {
+	var out bytes.Buffer
+	out.WriteString(" if ")
+	out.WriteString(i.Express.String())
+	out.WriteString(i.TrueStatement.String())
+	if i.ElseStatement != nil {
+		out.WriteString(i.ElseStatement.String())
+	}
+
+	return out.String()
+}
+
+type GroupStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+func (g *GroupStatement) statementNode()       {}
+func (g *GroupStatement) TokenLiteral() string { return g.Token.Literal }
+func (g *GroupStatement) String() string {
+	var out bytes.Buffer
+	out.WriteString(" { \n")
+	for _, stmt := range g.Statements {
+		out.WriteString(stmt.String())
+	}
+
+	out.WriteString(" } ")
+
+	return out.String()
+}
 
 type ReturnStatement struct {
 	Token       token.Token
@@ -137,9 +196,10 @@ func (i *IntegerLiteral) TokenLiteral() string { return i.Token.Literal }
 func (i *IntegerLiteral) String() string       { return i.Token.Literal }
 
 type InfixExpression struct {
-	Token       token.Token
-	Left, Right Expression
-	Operator    string
+	Token    token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
 }
 
 func (i *InfixExpression) expressionNode() {}
