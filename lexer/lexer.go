@@ -67,6 +67,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '!':
 		if l.peekChar() == '=' {
 			tok = token.Token{token.NOT_EQ, "!="}
+			l.readChar()
 		} else {
 			tok = token.Token{token.BANG, string(l.ch)}
 		}
@@ -91,7 +92,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok = token.Token{Type: token.EOF}
 	default:
 		if l.isLetter(l.ch) {
-			tok.Type = token.Identity
+			tok.Type = token.Identifier
 			tok.Literal = l.readIdentify()
 			if t, ok := token.Keywords[tok.Literal]; ok {
 				tok.Type = t
