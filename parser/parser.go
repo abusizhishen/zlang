@@ -45,12 +45,16 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFns)
 	p.infixParseFns = make(map[token.TokenType]infixParseFns)
 
-	p.registerPrefixParseFns(token.Identity, p.parseIdentifier)
+	p.registerPrefixParseFns(token.Identifier, p.parseIdentifier)
 	p.registerPrefixParseFns(token.Integer, p.parseIntegerLiteral)
 	p.registerPrefixParseFns(token.BANG, p.parsePrefixExpression)
 	p.registerPrefixParseFns(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefixParseFns(token.True, p.parseBoolLiteral)
+	p.registerPrefixParseFns(token.False, p.parseBoolLiteral)
+	p.registerPrefixParseFns(token.LPAREN, p.parseGroupedExpress)
 
 	p.registerInfixParseFns(token.PLUS, p.parseInfixExpression)
+	p.registerInfixParseFns(token.MINUS, p.parseInfixExpression)
 	p.registerInfixParseFns(token.SLASH, p.parseInfixExpression)
 	p.registerInfixParseFns(token.ASTERISK, p.parseInfixExpression)
 	p.registerInfixParseFns(token.EQ, p.parseInfixExpression)
@@ -83,6 +87,8 @@ func (p *Parser) ParseStatement() ast.Statement {
 		return p.parseLetStatement()
 	case token.Return:
 		return p.parseReturnStatement()
+	case token.IF:
+		return p.parseIfStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -90,8 +96,8 @@ func (p *Parser) ParseStatement() ast.Statement {
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Token: p.curToken}
-	if p.peekToken.Type != token.Identity {
-		p.peekError(token.Identity, p.curToken.Type)
+	if p.peekToken.Type != token.Identifier {
+		p.peekError(token.Identifier, p.curToken.Type)
 		return nil
 	}
 
@@ -170,6 +176,25 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
+func (p *Parser) parseGroupedStatement() *ast.GroupStatement {
+	return nil
+}
+
+func (p *Parser) parseIfStatement() *ast.IfStatement {
+	stmt := &ast.IfStatement{Token: p.curToken}
+	p.nextToken()
+	stmt.Express = p.parseExpression(LOWEST)
+	p.parseGroupedStatement()
+
+	if !p.peekTokenIs(token.Else) {
+		return stmt
+	}
+
+	stmt.ElseStatement = p.parseGroupedStatement()
+
+	return stmt
+}
+
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
@@ -202,7 +227,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 	value, err := strconv.ParseInt(lit.Token.Literal, 0, 64)
 	if err != nil {
-		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
+		msg := fmt.Sprintf("could not parse %s as integer", p.curToken.Literal)
 		p.errors = append(p.errors, msg)
 		return nil
 	}
@@ -212,7 +237,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) noPrefixParseFnError(t token.TokenType) {
-	msg := fmt.Sprintf("no profix parse function for %q", t)
+	msg := fmt.Sprintf("no prefix parse function for %q", t)
 	p.errors = append(p.errors, msg)
 }
 
@@ -226,6 +251,27 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	expression.Right = p.parseExpression(PREFIX)
 
 	return expression
+}
+
+func (p *Parser) parseBoolLiteral() ast.Expression {
+	return &ast.Bool{
+		Token: p.curToken,
+		Value: p.curTokenIs(token.True),
+	}
+}
+
+func (p *Parser) parseGroupedExpress() ast.Expression {
+	ge := &ast.GroupExpress{Token: p.curToken}
+	p.nextToken()
+
+	ge.Express = p.parseExpression(LOWEST)
+	if !p.peekTokenIs(token.RPAREN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	return ge
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {

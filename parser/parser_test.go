@@ -94,6 +94,11 @@ func testOperatorPrecedenceParsing(t *testing.T) {
 		input    string
 		expected string
 	}{
+		{"(2+(3+4))+1", "((2 + (3 + 4)) + 1)"},
+		{"(2+3)+1", "((2 + 3) + 1)"},
+		{"1+(2+3)", "(1 + (2 + 3))"},
+		{"1+(2+3)+4", "((1 + (2 + 3)) + 4)"},
+		{"true == false", "(true == false)"},
 		{"a+b+c", "((a + b) + c)"},
 		{"a+b*c", "(a + (b * c))"},
 		{"a*b*c", "((a * b) * c)"},
@@ -103,6 +108,8 @@ func testOperatorPrecedenceParsing(t *testing.T) {
 		{"5<4 == 3<4", "((5 < 4) == (3 < 4))"},
 		{"5<4 != 3>4", "((5 < 4) != (3 > 4))"},
 		{"3+4*5 == 3*1+4*5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"},
+		{"3+1-2", "((3 + 1) - 2)"},
+		{"1 == 3-2", "(1 == (3 - 2))"},
 	}
 
 	for _, tt := range tests {
@@ -114,6 +121,8 @@ func testOperatorPrecedenceParsing(t *testing.T) {
 		actual := program.String()
 		if actual != tt.expected {
 			t.Errorf("expected: %q, got=%q input:%q", tt.expected, actual, tt.input)
+		} else {
+			//t.Log(actual)
 		}
 	}
 }
