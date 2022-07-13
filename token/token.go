@@ -30,15 +30,17 @@ const (
 	EQ     = "=="
 	NOT_EQ = "!="
 
-	String   = "STRING"
-	Integer  = "INTEGER"
-	Identity = "IDENTIFY"
-	Let      = "LET"
-	IF       = "IF"
-	Else     = "ELSE"
-	Return   = "RETURN"
-	Switch   = "SWITCH"
-	FUN      = "FUN"
+	String     = "STRING"
+	Integer    = "INTEGER"
+	Identifier = "IDENTIFIER"
+	Let        = "LET"
+	IF         = "IF"
+	Else       = "ELSE"
+	Return     = "RETURN"
+	Switch     = "SWITCH"
+	FUN        = "FUN"
+	True       = "True"
+	False      = "False"
 
 	EOF     = "EOF"
 	INVALID = "INVALID"
@@ -51,6 +53,8 @@ var Keywords = map[string]TokenType{
 	"return": Return,
 	"switch": Switch,
 	"fun":    FUN,
+	"true":   True,
+	"false":  False,
 }
 
 func NewToken(t TokenType, ch byte) Token {
