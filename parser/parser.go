@@ -52,6 +52,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefixParseFns(token.True, p.parseBoolLiteral)
 	p.registerPrefixParseFns(token.False, p.parseBoolLiteral)
 	p.registerPrefixParseFns(token.LPAREN, p.parseGroupedExpress)
+	p.registerPrefixParseFns(token.IF, p.parseIfExpress)
 
 	p.registerInfixParseFns(token.PLUS, p.parseInfixExpression)
 	p.registerInfixParseFns(token.MINUS, p.parseInfixExpression)
@@ -177,13 +178,44 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseGroupedStatement() *ast.GroupStatement {
-	return nil
+	group := &ast.GroupStatement{Token: p.curToken}
+	p.nextToken()
+	if !p.curTokenIs(token.LBRACE) {
+		return nil
+	}
+	p.nextToken()
+
+	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
+		stmt := p.ParseStatement()
+		if stmt != nil {
+			group.Statements = append(group.Statements, stmt)
+		}
+
+		p.nextToken()
+	}
+
+	return group
 }
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt := &ast.IfStatement{Token: p.curToken}
 	p.nextToken()
-	stmt.Express = p.parseExpression(LOWEST)
+	stmt.Condition = p.parseExpression(LOWEST)
+	p.parseGroupedStatement()
+
+	if !p.peekTokenIs(token.Else) {
+		return stmt
+	}
+
+	stmt.ElseStatement = p.parseGroupedStatement()
+
+	return stmt
+}
+
+func (p *Parser) parseIfExpress() ast.Expression {
+	stmt := &ast.IfExpress{Token: p.curToken}
+	p.nextToken()
+	stmt.Condition = p.parseExpression(LOWEST)
 	p.parseGroupedStatement()
 
 	if !p.peekTokenIs(token.Else) {

@@ -128,7 +128,7 @@ func (id *Identifier) String() string       { return id.Value }
 
 type IfStatement struct {
 	Token         token.Token
-	Express       Expression
+	Condition     Expression
 	TrueStatement Statement
 	//ElseIfStatement s
 	ElseStatement Statement
@@ -139,7 +139,28 @@ func (i *IfStatement) TokenLiteral() string { return i.Token.Literal }
 func (i *IfStatement) String() string {
 	var out bytes.Buffer
 	out.WriteString(" if ")
-	out.WriteString(i.Express.String())
+	out.WriteString(i.Condition.String())
+	out.WriteString(i.TrueStatement.String())
+	if i.ElseStatement != nil {
+		out.WriteString(i.ElseStatement.String())
+	}
+
+	return out.String()
+}
+
+type IfExpress struct {
+	Token         token.Token
+	Condition     Expression
+	TrueStatement Statement
+	ElseStatement Statement
+}
+
+func (i *IfExpress) expressionNode()      {}
+func (i *IfExpress) TokenLiteral() string { return i.Token.Literal }
+func (i *IfExpress) String() string {
+	var out bytes.Buffer
+	out.WriteString(" if ")
+	out.WriteString(i.Condition.String())
 	out.WriteString(i.TrueStatement.String())
 	if i.ElseStatement != nil {
 		out.WriteString(i.ElseStatement.String())

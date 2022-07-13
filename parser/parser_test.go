@@ -94,6 +94,7 @@ func testOperatorPrecedenceParsing(t *testing.T) {
 		input    string
 		expected string
 	}{
+		{"let a = if x{x}else{y}", ""},
 		{"(2+(3+4))+1", "((2 + (3 + 4)) + 1)"},
 		{"(2+3)+1", "((2 + 3) + 1)"},
 		{"1+(2+3)", "(1 + (2 + 3))"},
