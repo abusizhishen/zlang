@@ -114,9 +114,16 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 
 	p.nextToken()
-	p.nextToken()
+	//p.nextToken()
+
+	if p.peekTokenIs(token.IF) {
+		p.nextToken()
+		stmt.Value = p.parseIfExpress()
+		return stmt
+	}
+
 	//todo express handle until meet semi
-	for p.curToken.Type != token.SEMICOLON {
+	for p.curToken.Type != token.SEMICOLON && p.curToken.Type != token.EOF {
 		p.nextToken()
 	}
 
@@ -177,8 +184,8 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-func (p *Parser) parseGroupedStatement() *ast.GroupStatement {
-	group := &ast.GroupStatement{Token: p.curToken}
+func (p *Parser) parseGroupedStatement() *ast.BlockStatement {
+	group := &ast.BlockStatement{Token: p.curToken}
 	p.nextToken()
 	if !p.curTokenIs(token.LBRACE) {
 		return nil
@@ -214,17 +221,59 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 func (p *Parser) parseIfExpress() ast.Expression {
 	stmt := &ast.IfExpress{Token: p.curToken}
-	p.nextToken()
-	stmt.Condition = p.parseExpression(LOWEST)
-	p.parseGroupedStatement()
-
-	if !p.peekTokenIs(token.Else) {
-		return stmt
+	//p.nextToken()
+	if !p.peekTokenIs(token.LPAREN) {
+		return nil
 	}
 
-	stmt.ElseStatement = p.parseGroupedStatement()
+	p.nextToken()
+	stmt.Condition = p.parseExpression(LOWEST)
+	if !p.peekTokenIs(token.RPAREN) {
+		return nil
+	}
 
+	p.nextToken()
+	if !p.peekTokenIs(token.LBRACE) {
+		return nil
+	}
+
+	p.nextToken()
+	stmt.TrueStatement = p.parseExpression(LOWEST)
+
+	if !p.peekTokenIs(token.RBRACE) {
+		return nil
+	}
+
+	if !p.peekTokenIs(token.RBRACE) {
+		return nil
+	}
+
+	p.nextToken()
+	if !p.peekTokenIs(token.Else) {
+		return nil
+	}
+
+	p.nextToken()
+	if !p.peekTokenIs(token.Else) {
+		return nil
+	}
+	p.nextToken()
+	if !p.peekTokenIs(token.LBRACE) {
+		return nil
+	}
+
+	p.nextToken()
+	stmt.ElseStatement = p.parseExpression(LOWEST)
+	if !p.peekTokenIs(token.RBRACE) {
+		return nil
+	}
+
+	p.nextToken()
 	return stmt
+}
+
+func (p *Parser) parseIfExpressBlockStatement() {
+
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {

@@ -151,8 +151,8 @@ func (i *IfStatement) String() string {
 type IfExpress struct {
 	Token         token.Token
 	Condition     Expression
-	TrueStatement Statement
-	ElseStatement Statement
+	TrueStatement Expression
+	ElseStatement Expression
 }
 
 func (i *IfExpress) expressionNode()      {}
@@ -160,23 +160,31 @@ func (i *IfExpress) TokenLiteral() string { return i.Token.Literal }
 func (i *IfExpress) String() string {
 	var out bytes.Buffer
 	out.WriteString(" if ")
+
+	out.WriteString(" " + token.LPAREN + " ")
 	out.WriteString(i.Condition.String())
+	out.WriteString(" " + token.RPAREN + " ")
+
+	out.WriteString(" " + token.LBRACE + " ")
 	out.WriteString(i.TrueStatement.String())
-	if i.ElseStatement != nil {
-		out.WriteString(i.ElseStatement.String())
-	}
+	out.WriteString(" " + token.RBRACE + " ")
+
+	out.WriteString(" " + token.Else + " ")
+	out.WriteString(" " + token.LBRACE + " ")
+	out.WriteString(i.ElseStatement.String())
+	out.WriteString(" " + token.RBRACE + " ")
 
 	return out.String()
 }
 
-type GroupStatement struct {
+type BlockStatement struct {
 	Token      token.Token
 	Statements []Statement
 }
 
-func (g *GroupStatement) statementNode()       {}
-func (g *GroupStatement) TokenLiteral() string { return g.Token.Literal }
-func (g *GroupStatement) String() string {
+func (g *BlockStatement) statementNode()       {}
+func (g *BlockStatement) TokenLiteral() string { return g.Token.Literal }
+func (g *BlockStatement) String() string {
 	var out bytes.Buffer
 	out.WriteString(" { \n")
 	for _, stmt := range g.Statements {
