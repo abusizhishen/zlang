@@ -1,12 +1,12 @@
 package repl
 
 import (
+	"bufio"
+	"fmt"
+	"github.com/abusizhishen/zlang/lexer"
+	"github.com/abusizhishen/zlang/token"
 	"io"
-	"zlang/lexer"
-	"zlang/token"
 )
-import "bufio"
-import "fmt"
 
 const PROMPT = ">> "
 

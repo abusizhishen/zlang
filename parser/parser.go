@@ -2,10 +2,10 @@ package parser
 
 import (
 	"fmt"
+	"github.com/abusizhishen/zlang/ast"
+	"github.com/abusizhishen/zlang/lexer"
+	"github.com/abusizhishen/zlang/token"
 	"strconv"
-	"zlang/ast"
-	"zlang/lexer"
-	"zlang/token"
 )
 
 const (

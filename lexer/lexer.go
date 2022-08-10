@@ -1,6 +1,6 @@
 package lexer
 
-import "zlang/token"
+import "github.com/abusizhishen/zlang/token"
 
 type Lexer struct {
 	input        string

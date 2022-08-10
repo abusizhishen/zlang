@@ -2,7 +2,7 @@ package ast
 
 import (
 	"bytes"
-	"zlang/token"
+	"github.com/abusizhishen/zlang/token"
 )
 
 type Node interface {

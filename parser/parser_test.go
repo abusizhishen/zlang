@@ -2,9 +2,9 @@ package parser
 
 import (
 	"fmt"
+	"github.com/abusizhishen/zlang/ast"
+	"github.com/abusizhishen/zlang/lexer"
 	"testing"
-	"zlang/ast"
-	"zlang/lexer"
 )
 
 func TestParser_ParseStatement(t *testing.T) {
